@@ -2,7 +2,7 @@
 
 Use this code to send predator live alerts.
 
-[Demo Link](http://www.cron.totalcryptos.com/)
+[Demo Link](http://cron.totalcryptos.com/)
 
 ## Running your service worker on your localhost
 
