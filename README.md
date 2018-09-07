@@ -1,6 +1,6 @@
-# Totalcryptos
+# Totalcryptos - cron
 
-Use Totalcryptos to check the ICOS and cryptocurrencies.
+Use this code to send predator live alerts.
 
 [Demo Link](http://www.totalcryptos.com/)
 
