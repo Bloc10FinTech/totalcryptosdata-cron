@@ -1,4 +1,19 @@
 module.exports = {
+	subscribe_room:function(request,callBack){
+		var roomName=request.param('roomName');
+		PredatorUserTokens.count({token:roomName},function(err, count){
+			if(count>0){
+				sails.sockets.join(request, roomName, function(err) {
+					if (err){ callBack({errCode:500,message: 'Server error'});}
+				});
+				callBack({errCode:1,message: 'Subscribed to a room called '+roomName});
+			}
+			else{
+				callBack({errCode:404,message: 'Failed to subscribed to a room called '+roomName});
+			}
+		});
+	},
+	
 	predators_data_alerts:function(exchange_updated){
 		var _ = require('lodash');
 		var moment = require('moment');
@@ -384,8 +399,29 @@ module.exports = {
 							}
 						}
 					});
-					sails.sockets.blast('predator_alert', {data:return_array,exchange_list:exchange_list});
-					//sails.sockets.broadcast(roomName, 'predator_alert', {data:return_array,exchange_list:exchange_list});
+					
+					if(!_.isEmpty(return_array)){
+						PredatorUserTokens.find().exec(function(err,tokens){
+							if(_.isEmpty(err)){
+								_.forEach(tokens,function(token){
+									var filter_array=[];
+									if(!_.isEmpty(token.currencies)){
+										_.forEach(token.currencies,function(currency){
+											_.forEach(return_array,function(data){
+												if(data.product.indexOf(_.toLower(currency))>=1){
+													filter_array.push(data);
+												}
+											});
+										});
+									}
+									if(!_.isEmpty(filter_array)){
+										sails.sockets.broadcast(token.token, 'predator_alert', {data:return_array,exchange_list:exchange_list});
+									}
+								});
+							}
+						});
+						//sails.sockets.blast('predator_alert', {data:return_array,exchange_list:exchange_list});
+					}
 				}).catch( err => {});
 				
 			}).
