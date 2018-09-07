@@ -408,7 +408,7 @@ module.exports = {
 									if(!_.isEmpty(token.currencies)){
 										_.forEach(token.currencies,function(currency){
 											_.forEach(return_array,function(data){
-												if(data.product.indexOf(_.toLower(currency))>=1){
+												if(data.product.indexOf(_.toLower(currency))>=0){
 													filter_array.push(data);
 												}
 											});
