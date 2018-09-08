@@ -6,6 +6,8 @@ module.exports = {
 				sails.sockets.join(request, roomName, function(err) {
 					if (err){ callBack({errCode:500,message: 'Server error'});}
 				});
+				//PROCESS TO SEND DAILY TRADE ALERTS
+				PredatorTradeService.createdayTradingAlerts();
 				callBack({errCode:1,message: 'Subscribed to a room called '+roomName});
 			}
 			else{
@@ -427,5 +429,31 @@ module.exports = {
 			}).
 			catch(err => {});
 		});			
+	},
+	
+	createdayTradingAlerts:function(){
+		console.log('crone job for day trading alert working');
+		var _=require('lodash');
+		TotalCryptoPrices.find().limit(1).sort({id:-1}).exec(function(err,totalcryptosData){
+			if(!_.isEmpty(totalcryptosData)){
+				var return_array={gainers_1h:[],losers_1h:[],gainers_24h:[],losers_24h:[]};
+				totalcryptosData=_.head(totalcryptosData);
+				var temp=totalcryptosData.prices;
+				temp=_.reject(temp,{change_perc_1h:null});
+				temp.sort(function(a,b){if(a.change_perc_1h>b.change_perc_1h){return -1;}else{return 1;}});
+				return_array.gainers_1h=_.slice(temp,0,15);
+				return_array.losers_1h=_.slice(temp.reverse(),0,15);
+				temp=totalcryptosData.prices;
+				temp=_.reject(temp,{change_perc_24h:null});
+				temp.sort(function(a,b){if(a.change_perc_24h>b.change_perc_24h){return -1;}else{return 1;}});
+				return_array.gainers_24h=_.slice(temp,0,15);
+				return_array.losers_24h=_.slice(temp.reverse(),0,15);
+				PredatorUserTokens.find().exec(function(err,tokens){
+					_.forEach(tokens,function(token){
+						sails.sockets.broadcast(token.token, 'day_trading_alert', {data:return_array});
+					});
+				});
+			}
+		});
 	}
 };
