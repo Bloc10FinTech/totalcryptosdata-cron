@@ -417,7 +417,7 @@ module.exports = {
 										});
 									}
 									if(!_.isEmpty(filter_array)){
-										sails.sockets.broadcast(token.token, 'predator_alert', {data:return_array,exchange_list:exchange_list});
+										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 									}
 								});
 							}
@@ -429,6 +429,22 @@ module.exports = {
 			}).
 			catch(err => {});
 		});			
+	},
+	
+	socketBroadCast:function(token,date_time,event_name,object_data,empty_object_data){
+		var moment=require('moment');
+		var _=require('lodash');
+		var now=moment();
+		var end=moment(date_time);
+		var duration = moment.duration(now.diff(end));
+		if((parseInt(duration.asHours())<1) && ((parseInt(duration.asMinutes())%60)<=20)){
+			object_data.is_expired=false;
+			sails.sockets.broadcast(token,event_name,object_data);
+		}
+		else{
+			empty_object_data.is_expired=true;
+			sails.sockets.broadcast(token,event_name,empty_object_data);
+		}
 	},
 	
 	createdayTradingAlerts:function(){
@@ -450,7 +466,7 @@ module.exports = {
 				return_array.losers_24h=_.slice(temp.reverse(),0,15);
 				PredatorUserTokens.find().exec(function(err,tokens){
 					_.forEach(tokens,function(token){
-						sails.sockets.broadcast(token.token, 'day_trading_alert', {data:return_array});
+						PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'day_trading_alert', {data:return_array},{data:{gainers_1h:[],losers_1h:[],gainers_24h:[],losers_24h:[]}});
 					});
 				});
 			}
