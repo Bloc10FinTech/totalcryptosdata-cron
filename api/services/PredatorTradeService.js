@@ -417,6 +417,7 @@ module.exports = {
 										});
 									}
 									if(!_.isEmpty(filter_array)){
+										filter_array=_.uniqBy(filter_array,'product');
 										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 									}
 								});
