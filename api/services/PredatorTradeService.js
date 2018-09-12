@@ -19,7 +19,7 @@ module.exports = {
 	predators_data_alerts:function(exchange_updated){
 		var _ = require('lodash');
 		var moment = require('moment');
-		
+		var select_after = moment().subtract(6, 'hours').toDate();
 		//var roomName=request.param('roomName');
 		var currencies=['btc','usd','eth','bch','gbp','ltc','eur','etc'];
 		var currencies_temp=currencies;
@@ -29,7 +29,7 @@ module.exports = {
 			return Promise.all(exchange_list.map((exchange) => {
 				return new Promise(function(resolve,reject){
 					var tickers=ExchangeTickersAlerts.findOne();
-					tickers.where({exchange_id:exchange.id});
+					tickers.where({exchange_id:exchange.id,date_created:{'>':select_after}});
 					tickers.sort('id DESC');
 					tickers.then(function(tickers){
 						if(!_.isEmpty(tickers)){
@@ -437,7 +437,7 @@ module.exports = {
 		var now=moment();
 		var end=moment(date_time);
 		var duration = moment.duration(now.diff(end));
-		if((parseInt(duration.asHours())<1) && ((parseInt(duration.asMinutes())%60)<=20)){
+		if((parseInt(duration.asHours())<1) && ((parseInt(duration.asMinutes())%60)<=5)){
 			object_data.is_expired=false;
 			sails.sockets.broadcast(token,event_name,object_data);
 		}
