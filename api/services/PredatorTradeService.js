@@ -280,7 +280,7 @@ module.exports = {
 							data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
 							var sell_at=data.records[0];
 							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (buy_from.exchange==exchange_updated || sell_at.exchange==exchange_updated)){
-								if(_.indexOf(response.data,data.product)==-1){
+								if((_.indexOf(response.data,data.product+'_')==-1) || _.indexOf(response.data,'_'+data.product)==-1){
 									return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at});
 								}
 							}
