@@ -19,10 +19,12 @@ module.exports = {
 	predators_data_alerts:function(exchange_updated){
 		var _ = require('lodash');
 		var moment = require('moment');
+		var request = require('request');
+		
 		var select_after = moment().subtract(6, 'hours').toDate();
 		//var roomName=request.param('roomName');
-		var currencies=['btc','usd','eth','bch','gbp','ltc','eur','etc'];
-		var currencies_temp=currencies;
+		//var currencies=['btc','usd','eth','bch','gbp','ltc','eur','etc'];
+		//var currencies_temp=currencies;
 		
 		ExchangeList.find({select:['id','name'],is_exchange:'yes'},function(err, exchange_list){
 			if(_.isEmpty(exchange_list)){exchange_list=[];}
@@ -305,6 +307,21 @@ module.exports = {
 									}
 									if(!_.isEmpty(filter_array)){
 										filter_array=_.uniqBy(filter_array,'product');
+										
+										//CALL JOOMLA API
+										var postData = {data: filter_array,users:[token.user_id]};
+										var url = 'https://portal.totalcryptos.com/predatord/predator.php';
+										var options = {method: 'post',body: postData,json: true,url: url};
+										request(options, function (err, res, body) {
+										  if (err) {//console.log('error posting json: '+ err);
+										  }
+										  //var headers = res.headers;
+										  //var statusCode = res.statusCode;
+										  //console.log('headers: '+ headers);
+										  //console.log('statusCode: '+ statusCode);
+										  //console.log('body: '+ body);
+										});
+										
 										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 									}
 								});
