@@ -309,7 +309,7 @@ module.exports = {
 										filter_array=_.uniqBy(filter_array,'product');
 										
 										//CALL JOOMLA API
-										var postData = {data: filter_array,users:[token.user_id]};
+										var postData = {data: filter_array,user_id:token.user_id};
 										var url = 'https://portal.totalcryptos.com/predatord/predator.php';
 										var options = {method: 'post',body: postData,json: true,url: url};
 										request(options, function (err, res, body) {
