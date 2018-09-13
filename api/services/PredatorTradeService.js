@@ -295,8 +295,10 @@ module.exports = {
 									if(!_.isEmpty(token.currencies)){
 										_.forEach(token.currencies,function(currency){
 											_.forEach(return_array,function(data){
-												if(data.product.indexOf(_.toLower(currency))>=0){
-													filter_array.push(data);
+												if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
+													if(data.product.indexOf(_.toLower(currency))>=0){
+														filter_array.push(data);
+													}
 												}
 											});
 										});
