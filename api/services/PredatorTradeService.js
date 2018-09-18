@@ -16,7 +16,7 @@ module.exports = {
 		});
 	},
 	
-	predators_data_alerts:function(exchange_updated){
+	predators_data_alerts:function(exchanges_updated){ 
 		var _ = require('lodash');
 		var moment = require('moment');
 		var request = require('request');
@@ -274,7 +274,6 @@ module.exports = {
 						}
 					});
 				});
-				
 				ExchangeDataService.fxPairList().then(response=>{ 
 					_.forEach(temp_data_array,function(data){
 						if(data.records.length>1){
@@ -282,7 +281,7 @@ module.exports = {
 							var buy_from=data.records[0];
 							data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
 							var sell_at=data.records[0];
-							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (buy_from.exchange==exchange_updated || sell_at.exchange==exchange_updated)){
+							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0)){
 								if(_.indexOf(response.data,data.product)==-1){
 									var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
 									delete buy_from.record_id;
@@ -339,7 +338,7 @@ module.exports = {
 		});			
 	},
 	
-	socketBroadCast:function(token,date_time,event_name,object_data,empty_object_data){
+	socketBroadCast:function(token,date_time,event_name,object_data,empty_object_data){ 
 		var moment=require('moment');
 		var _=require('lodash');
 		var now=moment();
