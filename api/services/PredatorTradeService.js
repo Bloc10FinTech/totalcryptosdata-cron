@@ -35,13 +35,14 @@ module.exports = {
 					tickers.sort('id DESC');
 					tickers.then(function(tickers){
 						if(!_.isEmpty(tickers)){
+							var record_id=tickers.id;
 							var date_created=moment(tickers.date_created).format('YYYY-MM-DD HH:mm:ss');
 							var tickers=tickers.tickers;
 							switch(exchange.name){
 								case 'gdax':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(_.replace(ticker.id,'-','_')),record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.price,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(_.replace(ticker.id,'-','_')),record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.price,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});	
 									return resolve(temp_array);
 								break;
@@ -49,7 +50,7 @@ module.exports = {
 									var temp_array=[];
 									tickers=tickers.result;
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(_.replace(ticker.MarketName,'-','_')),record:{buy:ticker.Bid,sell:ticker.Ask,volume:ticker.Volume,ask:ticker.Ask,bid:ticker.Bid,last:ticker.Last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(_.replace(ticker.MarketName,'-','_')),record:{buy:ticker.Bid,sell:ticker.Ask,volume:ticker.Volume,ask:ticker.Ask,bid:ticker.Bid,last:ticker.Last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -59,7 +60,7 @@ module.exports = {
 										var product=_.toLower(ticker.product_id);
 										var base_currency=_.toLower(product.substr(0,3));
 										var quote_currency=_.replace(product,base_currency,'');
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last_price,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last_price,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -69,14 +70,14 @@ module.exports = {
 										var product=_.toLower(ticker.symbol);
 										var base_currency=_.toLower(ticker.baseCurrency);
 										var quote_currency=_.toLower(ticker.quoteCurrency);	
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'gate':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.highestBid,sell:ticker.lowestAsk,volume:ticker.baseVolume,ask:ticker.lowestAsk,bid:ticker.highestBid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.highestBid,sell:ticker.lowestAsk,volume:ticker.baseVolume,ask:ticker.lowestAsk,bid:ticker.highestBid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -87,7 +88,7 @@ module.exports = {
 											var product=_.toLower(ticker.product);
 											var base_currency=_.toLower(product.substr(0,3));
 											var quote_currency=_.replace(product,base_currency,'');
-											temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+											temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 										}
 									});
 									return resolve(temp_array);
@@ -95,7 +96,7 @@ module.exports = {
 								case 'okex':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.ticker.buy,sell:ticker.ticker.sell,volume:ticker.ticker.vol,ask:ticker.ticker.sell,bid:ticker.ticker.buy,last:ticker.ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.ticker.buy,sell:ticker.ticker.sell,volume:ticker.ticker.vol,ask:ticker.ticker.sell,bid:ticker.ticker.buy,last:ticker.ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -104,7 +105,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.baseAsset);
 										var quote_currency=_.toLower(ticker.quoteAsset);	
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bidPrice,sell:ticker.askPrice,volume:ticker.volume,ask:ticker.askPrice,bid:ticker.bidPrice,last:ticker.lastPrice,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bidPrice,sell:ticker.askPrice,volume:ticker.volume,ask:ticker.askPrice,bid:ticker.bidPrice,last:ticker.lastPrice,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -113,7 +114,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.tick.bid[0],sell:ticker.tick.ask[0],volume:ticker.tick.vol,ask:ticker.tick.ask[0],bid:ticker.tick.bid[0],last:ticker.tick.bid[0],exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.tick.bid[0],sell:ticker.tick.ask[0],volume:ticker.tick.vol,ask:ticker.tick.ask[0],bid:ticker.tick.bid[0],last:ticker.tick.bid[0],exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -123,7 +124,7 @@ module.exports = {
 										var product=_.toLower(ticker.product);
 										var base_currency=_.toLower(ticker.currency);
 										var quote_currency=_.toLower(_.replace(product,base_currency,''	));	
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.vol,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.vol,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -132,14 +133,14 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);	
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'bitflyer':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.best_bid,sell:ticker.best_ask,volume:ticker.volume,ask:ticker.best_ask,bid:ticker.best_bid,last:ticker.best_bid,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.best_bid,sell:ticker.best_ask,volume:ticker.volume,ask:ticker.best_ask,bid:ticker.best_bid,last:ticker.best_bid,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -148,7 +149,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);	
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.buy_price,sell:ticker.sell_price,volume:ticker.volume_1day,ask:ticker.sell_price,bid:ticker.buy_price,last:ticker.buy_price,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.buy_price,sell:ticker.sell_price,volume:ticker.volume_1day,ask:ticker.sell_price,bid:ticker.buy_price,last:ticker.buy_price,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;	
@@ -157,14 +158,14 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'bitz':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -172,7 +173,7 @@ module.exports = {
 									var temp_array=[];
 									//AS THERE IS NO ASK/BID OR BUY/SELL DATA HERE
 									/*_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.symbol),record:{buy:ticker.ticker.low,sell:ticker.ticker.latest,volume:ticker.ticker.vol,last:ticker.ticker.latest,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.symbol),record:{buy:ticker.ticker.low,sell:ticker.ticker.latest,volume:ticker.ticker.vol,last:ticker.ticker.latest,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									*/
 									return resolve(temp_array);
@@ -184,7 +185,7 @@ module.exports = {
 									/*_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.low,sell:ticker.last,volume:ticker.volume,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.low,sell:ticker.last,volume:ticker.volume,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									*/
 									return resolve(temp_array);
@@ -193,7 +194,7 @@ module.exports = {
 									var temp_array=[];
 									//AS IT IS A CRAP EXCHANGE
 									/*_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									_.forEach(currencies,function(currency){
 									*/
@@ -202,28 +203,28 @@ module.exports = {
 								case 'exmo':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy_price,sell:ticker.sell_price,volume:ticker.vol,ask:ticker.sell_price,bid:ticker.buy_price,last:ticker.last_trade,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy_price,sell:ticker.sell_price,volume:ticker.vol,ask:ticker.sell_price,bid:ticker.buy_price,last:ticker.last_trade,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'liqui':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'korbit':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.product),record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
 								case 'bitmex':
 									var temp_array=[];
 									_.forEach(tickers,function(ticker){
-										temp_array.push({product:_.toLower(ticker.symbol),record:{buy:ticker.bidPrice,sell:ticker.askPrice,volume:ticker.totalVolume,ask:ticker.askPrice,bid:ticker.bidPrice,last:ticker.lastPrice,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:_.toLower(ticker.symbol),record:{buy:ticker.bidPrice,sell:ticker.askPrice,volume:ticker.totalVolume,ask:ticker.askPrice,bid:ticker.bidPrice,last:ticker.lastPrice,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -232,7 +233,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.best_bid,sell:ticker.best_ask,volume:ticker.volume,ask:ticker.best_ask,bid:ticker.best_bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.best_bid,sell:ticker.best_ask,volume:ticker.volume,ask:ticker.best_ask,bid:ticker.best_bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -241,7 +242,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										var base_currency=_.toLower(ticker.base_currency);
 										var quote_currency=_.toLower(ticker.quote_currency);
-										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created}});
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.bid,sell:ticker.ask,volume:ticker.volume,ask:ticker.ask,bid:ticker.bid,last:ticker.last,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 									});
 									return resolve(temp_array);
 								break;
@@ -283,7 +284,10 @@ module.exports = {
 							var sell_at=data.records[0];
 							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (buy_from.exchange==exchange_updated || sell_at.exchange==exchange_updated)){
 								if(_.indexOf(response.data,data.product)==-1){
-									return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at});
+									var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
+									delete buy_from.record_id;
+									delete sell_at.record_id;
+									return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id});
 								}
 							}
 						}
@@ -321,7 +325,6 @@ module.exports = {
 										  //console.log('statusCode: '+ statusCode);
 										  //console.log('body: '+ body);
 										});
-										
 										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 									}
 								});
