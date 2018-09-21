@@ -16,8 +16,8 @@ module.exports = {
 		});
 	},
 	
-	predators_data_alerts:function(exchanges_updated){ 
-		var _ = require('lodash');
+	predators_data_alerts:function(exchanges_updated){  
+		var _ = require('lodash'); 
 		var moment = require('moment');
 		var request = require('request');
 		
@@ -283,7 +283,8 @@ module.exports = {
 							var buy_from=data.records[0];
 							data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
 							var sell_at=data.records[0];
-							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0)){
+							
+							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
 								if(_.indexOf(response.data,data.product)==-1){
 									var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
 									var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
@@ -294,8 +295,6 @@ module.exports = {
 							}
 						}
 					});
-					
-					return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
 					
 					if(!_.isEmpty(return_array)){
 						PredatorUserTokens.find().exec(function(err,tokens){
@@ -315,6 +314,8 @@ module.exports = {
 									}
 									if(!_.isEmpty(filter_array)){
 										filter_array=_.uniqBy(filter_array,'product');
+										filter_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
+										filter_array=_.slice(filter_array,0,25);
 										
 										//CALL JOOMLA API
 										var postData = {data: filter_array,user_id:token.user_id};
