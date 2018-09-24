@@ -328,18 +328,22 @@ module.exports = {
 										filter_array=_.slice(filter_array,0,25);
 										
 										//CALL JOOMLA API
-										var postData = {data: filter_array,user_id:token.user_id};
-										var url = 'https://devportal.totalcryptos.com/predatord/predator.php';
-										var options = {method: 'post',body: postData,json: true,url: url};
-										request(options, function (err, res, body) {
-										  if (err) {//console.log('error posting json: '+ err);
-										  }
-										  //var headers = res.headers;
-										  //var statusCode = res.statusCode;
-										  //console.log('headers: '+ headers);
-										  //console.log('statusCode: '+ statusCode);
-										  //console.log('body: '+ body);
+										var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
+										_.forEach(url_array,function(url){
+											var postData = {data: filter_array,user_id:token.user_id};
+											var url =url;
+											var options = {method: 'post',body: postData,json: true,url: url};
+											request(options, function (err, res, body) {
+											  if (err) {//console.log('error posting json: '+ err);
+											  }
+											  //var headers = res.headers;
+											  //var statusCode = res.statusCode;
+											  //console.log('headers: '+ headers);
+											  //console.log('statusCode: '+ statusCode);
+											  //console.log('body: '+ body);
+											});
 										});
+										
 										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 									}
 								});
