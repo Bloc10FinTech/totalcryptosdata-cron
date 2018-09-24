@@ -246,6 +246,16 @@ module.exports = {
 									});
 									return resolve(temp_array);
 								break;
+								case 'kucoin':
+									var temp_array=[];
+									tickers=tickers.data; 
+									_.forEach(tickers,function(ticker){
+										var base_currency=_.toLower(ticker.coinType);
+										var quote_currency=_.toLower(ticker.coinTypePair);
+										temp_array.push({product:base_currency+'_'+quote_currency,record:{buy:ticker.buy,sell:ticker.sell,volume:ticker.vol,ask:ticker.sell,bid:ticker.buy,last:ticker.lastDealPrice,exchange:exchange.name,date_created:date_created,record_id:record_id}});
+									}); 
+									return resolve(temp_array);
+								break;
 								default:
 									return resolve([]);
 								break;
