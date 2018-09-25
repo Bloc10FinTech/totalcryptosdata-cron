@@ -311,17 +311,20 @@ module.exports = {
 							if(_.isEmpty(err)){
 								_.forEach(tokens,function(token){
 									var filter_array=[];
-									if(!_.isEmpty(token.currencies)){
-										_.forEach(token.currencies,function(currency){
-											_.forEach(return_array,function(data){
-												if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
+									_.forEach(return_array,function(data){
+										if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
+											if(_.isEmpty(token.currencies)){
+												filter_array.push(data);
+											}
+											else {
+												_.forEach(token.currencies,function(currency){
 													if(data.product.indexOf(_.toLower(currency+'_'))>=0 || data.product.indexOf(_.toLower('_'+currency))>=0){
 														filter_array.push(data);
 													}
-												}
-											});
-										});
-									}
+												});
+											}
+										}
+									});
 									if(!_.isEmpty(filter_array)){
 										filter_array=_.uniqBy(filter_array,'product');
 										filter_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
