@@ -1303,7 +1303,7 @@ module.exports = {
 						case 'livecoin':
 							ApiService.livecoinTicker().then(tickers=>{
 								tickers=JSON.parse(tickers);
-								if(_.isEmpty(tickers.errorCode)){
+								if(_.isEmpty(tickers.errorMessage)){
 								_.forEach(tickers,function(ticker){
 										ticker.base_currency=ticker.cur;
 										ticker.quote_currency=_.replace(ticker.symbol,ticker.cur+'/','');
