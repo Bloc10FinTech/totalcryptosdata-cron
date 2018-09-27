@@ -1474,7 +1474,7 @@ module.exports = {
 				}
 			});
 			if(!_.isEmpty(temp)){
-				PredatorTradeService.predators_data_alerts(temp);
+				PredatorTradeService.predators_data_alerts(temp,curDateTime);
 			}
 		}).
 		catch(err => {
