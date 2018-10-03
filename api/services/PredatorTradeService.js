@@ -21,8 +21,8 @@ module.exports = {
 		var moment = require('moment');
 		var request = require('request');
 		var math = require('mathjs');
-		
-		var select_after = moment().subtract(6, 'hours').toDate();
+	
+		var delete_before_alerts=moment().subtract(6, 'hours').toDate();
 		//var roomName=request.param('roomName');
 		//var currencies=['btc','usd','eth','bch','gbp','ltc','eur','etc'];
 		//var currencies_temp=currencies;
@@ -33,7 +33,7 @@ module.exports = {
 			return Promise.all(exchange_list.map((exchange) => {
 				return new Promise(function(resolve,reject){
 					var tickers=ExchangeTickersAlerts.findOne();
-					tickers.where({exchange_id:exchange.id,date_created:{'>':select_after}});
+					tickers.where({exchange_id:exchange.id});
 					tickers.sort('id DESC');
 					tickers.then(function(tickers){
 						if(!_.isEmpty(tickers)){
@@ -446,6 +446,21 @@ module.exports = {
 									ApiService.exchangeErrors('totalcryptocharthistoryminutes','query_insert',err,'history_insert',curDateTime);
 								}
 							});
+							
+							//DELETE EXCHANGES TICKERS ALERTS
+							ExchangeTickersAlerts.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
+								if(err){
+									ApiService.exchangeErrors('alert_tickers','delete',err,'alert_tickers_delete',curDateTime);
+								}
+							});
+							
+							//DELETE TOTALCRYPTO PRICES HISTORY MINUTES
+							TotalCryptoChartHistoryMinutes.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
+								if(err){
+									ApiService.exchangeErrors('totalcryptocharthistoryminutes','delete',err,'history_delete',curDateTime);
+								}
+							});
+							
 						}
 					}
 				}).catch( err => {});

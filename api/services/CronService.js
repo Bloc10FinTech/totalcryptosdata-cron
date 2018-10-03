@@ -39,7 +39,7 @@ module.exports = {
 								if(!_.isEmpty(tickers_data)){
 									
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -67,7 +67,15 @@ module.exports = {
 											return exchange;
 										});
 										
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -102,7 +110,7 @@ module.exports = {
 									 });
 									tickers.result=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -131,7 +139,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -164,7 +180,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -175,11 +191,11 @@ module.exports = {
 										if(!_.isEmpty(last_tickers)){
 											last_tickers=last_tickers.tickers;
 											_.forEach(last_tickers,function(ticker){
-												var filter=_.filter(tickers,{product_id:ticker.product_id});
+												var filter=_.filter(tickers_data,{product_id:ticker.product_id});
 												if(!_.isEmpty(filter)){
 													filter=_.head(filter);
 													if(filter.last_price==ticker.last_price){
-														tickers=_.reject(tickers,{product_id:ticker.product_id});
+														tickers_data=_.reject(tickers_data,{product_id:ticker.product_id});
 													}
 												}
 											});
@@ -191,7 +207,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								else{
 									return 'failed';
@@ -220,7 +244,7 @@ module.exports = {
 									});
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -250,6 +274,14 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									tickers=_.reject(tickers,{bid:null});
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
 								}
 								catch(e){ 
@@ -280,7 +312,7 @@ module.exports = {
 									
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -307,6 +339,13 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
 								}
 								catch(e){
@@ -337,7 +376,7 @@ module.exports = {
 									
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -364,7 +403,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								catch (e){
 									ApiService.exchangeErrors(exchange,'api',e,'alert_api_select',curDateTime);
@@ -399,7 +446,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){ 
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -427,7 +474,15 @@ module.exports = {
 											return exchange;
 										});
 										
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -456,7 +511,7 @@ module.exports = {
 									});
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -485,7 +540,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								catch(e){
 									ApiService.exchangeErrors(exchange,'api',e,'alert_api_select',curDateTime);
@@ -532,7 +595,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -559,7 +622,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -603,7 +674,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -631,7 +702,15 @@ module.exports = {
 											return exchange;
 										});
 										
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -682,7 +761,7 @@ module.exports = {
 								
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -709,7 +788,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -752,7 +839,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -779,7 +866,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -808,7 +903,7 @@ module.exports = {
 										});
 										tickers=temp;
 										//PROCESS TO MATCH WITH LAST PRICE
-										var last_tickers=ExchangeTickersAlerts.findOne();
+										/*var last_tickers=ExchangeTickersAlerts.findOne();
 										last_tickers.where({exchange_id:exchange_id});
 										last_tickers.sort('id DESC');
 										last_tickers.exec(function(err,last_tickers){
@@ -837,7 +932,15 @@ module.exports = {
 												}
 												return exchange;
 											});
+										});*/
+										
+										ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+											if(err){ 
+												ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+											}
+											return exchange;
 										});
+											
 									}
 								}
 								catch(e){
@@ -875,7 +978,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -902,7 +1005,14 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								else{
 									return 'failed';
@@ -929,7 +1039,7 @@ module.exports = {
 										});
 										tickers=temp;
 										//PROCESS TO MATCH WITH LAST PRICE
-										var last_tickers=ExchangeTickersAlerts.findOne();
+										/*var last_tickers=ExchangeTickersAlerts.findOne();
 										last_tickers.where({exchange_id:exchange_id});
 										last_tickers.sort('id DESC');
 										last_tickers.exec(function(err,last_tickers){
@@ -956,7 +1066,15 @@ module.exports = {
 												}
 												return exchange;
 											});
+										});*/
+										
+										ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+											if(err){ 
+												ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+											}
+											return exchange;
 										});
+										
 									}
 								}
 								catch (e){
@@ -980,7 +1098,7 @@ module.exports = {
 									});
 									
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1007,7 +1125,14 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								catch(e){
 									ApiService.exchangeErrors(exchange,'api',e,'alert_api_select',curDateTime);
@@ -1038,7 +1163,7 @@ module.exports = {
 									}	
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1065,7 +1190,14 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+									
 								}
 								catch(e){
 									ApiService.exchangeErrors(exchange,'api',e,'alert_api_select',curDateTime);
@@ -1093,7 +1225,7 @@ module.exports = {
 						
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1120,6 +1252,13 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
 								}
 								catch(e){
@@ -1150,7 +1289,7 @@ module.exports = {
 						
 									tickers=temp;
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1177,7 +1316,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err, data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								catch(e){ 
 									ApiService.exchangeErrors(exchange,'api',e,'alert_api_select',curDateTime);
@@ -1214,7 +1361,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1241,7 +1388,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								else{
 									return 'failed';
@@ -1262,7 +1417,7 @@ module.exports = {
 										ticker.quote_currency=_.replace(ticker.symbol,ticker.rootSymbol,'');
 									});
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1289,6 +1444,13 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
 								}
 								else{
@@ -1310,7 +1472,7 @@ module.exports = {
 										ticker.product=_.replace(ticker.symbol,'/','');
 									});
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1337,6 +1499,13 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
 								}
 								else {
@@ -1373,7 +1542,7 @@ module.exports = {
 								});
 								if(!_.isEmpty(tickers_data)){
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
@@ -1400,7 +1569,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers_data,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								else{
 									return 'failed';
@@ -1415,22 +1592,22 @@ module.exports = {
 							ApiService.kucoinTicker().then(tickers=>{
 								tickers=JSON.parse(tickers);
 								if(tickers.success){
+									_.forEach(tickers.data,function(ticker){
+										ticker.lastDealPrice=math.format(ticker.lastDealPrice,{lowerExp: -100, upperExp: 100});
+										ticker.buy=math.format(ticker.buy,{lowerExp: -100, upperExp: 100});
+										ticker.sell=math.format(ticker.sell,{lowerExp: -100, upperExp: 100});
+										ticker.high=math.format(ticker.high,{lowerExp: -100, upperExp: 100});
+										ticker.low=math.format(ticker.low,{lowerExp: -100, upperExp: 100});
+									});
+										
 									//PROCESS TO MATCH WITH LAST PRICE
-									var last_tickers=ExchangeTickersAlerts.findOne();
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
 									last_tickers.where({exchange_id:exchange_id});
 									last_tickers.sort('id DESC');
 									last_tickers.exec(function(err,last_tickers){
 										if(err){ 
 											ApiService.exchangeErrors(exchange,'query_select',err,'alert_select',curDateTime);
 										}
-										
-										_.forEach(tickers.data,function(ticker){
-											ticker.lastDealPrice=math.format(ticker.lastDealPrice,{lowerExp: -100, upperExp: 100});
-											ticker.buy=math.format(ticker.buy,{lowerExp: -100, upperExp: 100});
-											ticker.sell=math.format(ticker.sell,{lowerExp: -100, upperExp: 100});
-											ticker.high=math.format(ticker.high,{lowerExp: -100, upperExp: 100});
-											ticker.low=math.format(ticker.low,{lowerExp: -100, upperExp: 100});
-										});
 										
 										if(!_.isEmpty(last_tickers)){
 											last_tickers=last_tickers.tickers.data;
@@ -1451,7 +1628,15 @@ module.exports = {
 											}
 											return exchange;
 										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
 									});
+										
 								}
 								else {
 									return 'failed';
