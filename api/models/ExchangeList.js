@@ -16,6 +16,7 @@ module.exports = {
 	is_exchange: {type : 'string', enum:['yes','no'], required: true},
 	currencies: {type: 'json'},
 	products: {type: 'json'},
+	rating: {type : 'string', allowNull: true},
 	date_created: {type: 'datetime', required: true}
   }
 };
