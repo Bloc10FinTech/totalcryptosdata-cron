@@ -339,7 +339,8 @@ module.exports = {
 							var return_array=[];
 							_.forEach(temp_data_array,function(data){
 								if(!_.isEmpty(token.exchanges)){
-									data.records=_.filter(data.records,(record)=> !_.includes(token.exchanges, record.exchange));
+									data.records = _.map(data.records, function(o) {if (_.indexOf(token.exchanges,o.exchange)>=0) return o;});
+									data.records = _.without(data.records, undefined);
 								}
 								if(data.records.length>1){
 									data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
