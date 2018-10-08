@@ -313,9 +313,160 @@ module.exports = {
 			})).
 			then(response => {
 				var temp_data_array=[];
-				var return_array=[];
 				
-				_.forEach(response,function(exchange_data){
+				ExchangeDataService.fxPairList().then(fx_pairs=>{ 
+					_.forEach(response,function(exchange_data){
+						_.forEach(exchange_data,function(data){
+							if(_.indexOf(fx_pairs.data,data.product)==-1){	
+								if(data.record.volume>0){
+									if(_.isEmpty(_.filter(temp_data_array,{product:data.product}))){
+										temp_data_array.push({product:data.product,records:[data.record]});
+									}
+									else{
+										_.forEach(temp_data_array,function(return_data){
+											if(return_data.product==data.product){
+												return_data.records.push(data.record);
+											}
+										});
+									}
+								}
+							}
+						});
+					});
+					
+					PredatorUserTokens.find().exec(function(err,tokens){
+						_.forEach(tokens,function(token){
+							var return_array=[];
+							_.forEach(temp_data_array,function(data){
+								if(!_.isEmpty(token.exchanges)){
+									data.records=_.filter(data.records,(record)=> !_.includes(token.exchanges, record.exchange));
+								}
+								if(data.records.length>1){
+									data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
+									var buy_from=data.records[0];
+									data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
+									var sell_at=data.records[0];
+									
+									if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
+										var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
+										var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
+										delete buy_from.record_id;
+										delete sell_at.record_id;
+										return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id,total_profit:total_profit});
+									}
+								}
+							});
+							
+							var filter_array=[];
+							_.forEach(return_array,function(data){
+								if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
+									if(_.isEmpty(token.currencies)){
+										filter_array.push(data);
+									}
+									else {
+										_.forEach(token.currencies,function(currency){
+											if(data.product.indexOf(_.toLower(currency+'_'))>=0 || data.product.indexOf(_.toLower('_'+currency))>=0){
+												filter_array.push(data);
+											}
+										});
+									}
+								}
+							});
+							if(!_.isEmpty(filter_array)){
+								filter_array=_.uniqBy(filter_array,'product');
+								filter_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
+								filter_array=_.slice(filter_array,0,25);
+								
+								//CALL JOOMLA API
+								var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
+								_.forEach(url_array,function(url){
+									var postData = {data: filter_array,user_id:token.user_id};
+									var url =url;
+									var options = {method: 'post',body: postData,json: true,url: url};
+									request(options, function (err, res, body) {
+									  if (err) {//console.log('error posting json: '+ err);
+									  }
+									  //var headers = res.headers;
+									  //var statusCode = res.statusCode;
+									  //console.log('headers: '+ headers);
+									  //console.log('statusCode: '+ statusCode);
+									  //console.log('body: '+ body);
+									});
+								});
+								
+								PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
+							}
+						});	
+					});
+				}).
+				catch( err => {});
+				
+				var temp=[];
+				var insert_array=[];
+				_.forEach(total_crypto_prices,function(ticker){
+					var exists=false;
+					_.forEach(temp,function(data){
+						if(data.product==ticker.product){
+							if(!_.isEmpty(ticker.price)){data.prices.push(parseFloat(ticker.price));}
+							if(!_.isEmpty(ticker.volume)){data.volumes.push(parseFloat(ticker.volume));}
+							if(!_.isEmpty(ticker.high)){data.max_prices.push(parseFloat(ticker.high));}
+							if(!_.isEmpty(ticker.low)){data.min_prices.push(parseFloat(ticker.low));}
+							exists=true;
+						}
+					});
+					if(!exists){
+						var prices=[];
+						var volumes=[];
+						var max_prices=[];
+						var min_prices=[];
+						if(!_.isEmpty(ticker.price)){prices.push(parseFloat(ticker.price));}
+						if(!_.isEmpty(ticker.volume)){volumes.push(parseFloat(ticker.volume));}
+						if(!_.isEmpty(ticker.high)){max_prices.push(parseFloat(ticker.high));}
+						if(!_.isEmpty(ticker.low)){min_prices.push(parseFloat(ticker.low));}
+						
+						temp.push({product:ticker.product,base_currency:ticker.base_currency,prices:prices,volumes:volumes,max_prices:max_prices,min_prices:min_prices});
+					}
+				});
+						
+				if(!_.isEmpty(temp)){ 
+					_.forEach(temp,function(data){
+						data.price=math.format(_.reduce(data.prices,function(sum,n){return sum+n;},0)/data.prices.length, {lowerExp: -100, upperExp: 100});
+						data.volume=math.format(_.reduce(data.volumes,function(sum,n){return sum+n;},0)/data.volumes.length, {lowerExp: -100, upperExp: 100});
+						data.high=math.format(Math.max.apply(Math,data.max_prices), {lowerExp: -100, upperExp: 100});
+						data.low=math.format(Math.min.apply(Math,data.min_prices), {lowerExp: -100, upperExp: 100});
+						
+						if(data.prices.length>0 && data.volumes.length>0 && data.max_prices.length>0 && data.min_prices.length>0){
+							delete data.prices;
+							delete data.volumes;
+							delete data.max_prices;
+							delete data.min_prices;
+							insert_array.push(data);
+						}
+					});
+					
+					TotalCryptoChartHistoryMinutes.create({prices:insert_array,date_created:curDateTime},function(err,data){
+						if(err){ 
+							ApiService.exchangeErrors('totalcryptocharthistoryminutes','query_insert',err,'history_insert',curDateTime);
+						}
+					});
+					
+					//DELETE EXCHANGES TICKERS ALERTS
+					ExchangeTickersAlerts.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
+						if(err){
+							ApiService.exchangeErrors('alert_tickers','delete',err,'alert_tickers_delete',curDateTime);
+						}
+					});
+					
+					//DELETE TOTALCRYPTO PRICES HISTORY MINUTES
+					TotalCryptoChartHistoryMinutes.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
+						if(err){
+							ApiService.exchangeErrors('totalcryptocharthistoryminutes','delete',err,'history_delete',curDateTime);
+						}
+					});
+					
+				}
+				
+				/*_.forEach(response,function(exchange_data){
 					_.forEach(exchange_data,function(data){
 						if(data.record.volume>0){
 							if(_.isEmpty(_.filter(temp_data_array,{product:data.product}))){
@@ -398,73 +549,9 @@ module.exports = {
 							}
 						});
 						//sails.sockets.blast('predator_alert', {data:return_array,exchange_list:exchange_list});
-						var temp=[];
-						var insert_array=[];
-						_.forEach(total_crypto_prices,function(ticker){
-							var exists=false;
-							_.forEach(temp,function(data){
-								if(data.product==ticker.product){
-									if(!_.isEmpty(ticker.price)){data.prices.push(parseFloat(ticker.price));}
-									if(!_.isEmpty(ticker.volume)){data.volumes.push(parseFloat(ticker.volume));}
-									if(!_.isEmpty(ticker.high)){data.max_prices.push(parseFloat(ticker.high));}
-									if(!_.isEmpty(ticker.low)){data.min_prices.push(parseFloat(ticker.low));}
-									exists=true;
-								}
-							});
-							if(!exists){
-								var prices=[];
-								var volumes=[];
-								var max_prices=[];
-								var min_prices=[];
-								if(!_.isEmpty(ticker.price)){prices.push(parseFloat(ticker.price));}
-								if(!_.isEmpty(ticker.volume)){volumes.push(parseFloat(ticker.volume));}
-								if(!_.isEmpty(ticker.high)){max_prices.push(parseFloat(ticker.high));}
-								if(!_.isEmpty(ticker.low)){min_prices.push(parseFloat(ticker.low));}
-								
-								temp.push({product:ticker.product,base_currency:ticker.base_currency,prices:prices,volumes:volumes,max_prices:max_prices,min_prices:min_prices});
-							}
-						});
 						
-						if(!_.isEmpty(temp)){ 
-							_.forEach(temp,function(data){
-								data.price=math.format(_.reduce(data.prices,function(sum,n){return sum+n;},0)/data.prices.length, {lowerExp: -100, upperExp: 100});
-								data.volume=math.format(_.reduce(data.volumes,function(sum,n){return sum+n;},0)/data.volumes.length, {lowerExp: -100, upperExp: 100});
-								data.high=math.format(Math.max.apply(Math,data.max_prices), {lowerExp: -100, upperExp: 100});
-								data.low=math.format(Math.min.apply(Math,data.min_prices), {lowerExp: -100, upperExp: 100});
-								
-								if(data.prices.length>0 && data.volumes.length>0 && data.max_prices.length>0 && data.min_prices.length>0){
-									delete data.prices;
-									delete data.volumes;
-									delete data.max_prices;
-									delete data.min_prices;
-									insert_array.push(data);
-								}
-							});
-							
-							TotalCryptoChartHistoryMinutes.create({prices:insert_array,date_created:curDateTime},function(err,data){
-								if(err){ 
-									ApiService.exchangeErrors('totalcryptocharthistoryminutes','query_insert',err,'history_insert',curDateTime);
-								}
-							});
-							
-							//DELETE EXCHANGES TICKERS ALERTS
-							ExchangeTickersAlerts.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
-								if(err){
-									ApiService.exchangeErrors('alert_tickers','delete',err,'alert_tickers_delete',curDateTime);
-								}
-							});
-							
-							//DELETE TOTALCRYPTO PRICES HISTORY MINUTES
-							TotalCryptoChartHistoryMinutes.destroy({date_created:{'<':delete_before_alerts}}).exec(function(err){
-								if(err){
-									ApiService.exchangeErrors('totalcryptocharthistoryminutes','delete',err,'history_delete',curDateTime);
-								}
-							});
-							
-						}
 					}
-				}).catch( err => {});
-				
+				}).catch( err => {});*/
 			}).
 			catch(err => {});
 		});			
