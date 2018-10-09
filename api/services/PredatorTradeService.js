@@ -318,7 +318,7 @@ module.exports = {
 					_.forEach(response,function(exchange_data){
 						_.forEach(exchange_data,function(data){
 							if(_.indexOf(fx_pairs.data,data.product)==-1){	
-								if(data.record.volume>0){
+								if(data.record.buy!=undefined && data.record.sell!=undefined && data.record.volume!=undefined && data.record.ask!=undefined && data.record.bid!=undefined && data.record.last!=undefined){
 									if(_.isEmpty(_.filter(temp_data_array,{product:data.product}))){
 										temp_data_array.push({product:data.product,records:[data.record]});
 									}
@@ -338,50 +338,45 @@ module.exports = {
 						_.forEach(tokens,function(token){
 							var return_array=[];
 							_.forEach(temp_data_array,function(data){
-								if(!_.isEmpty(token.exchanges)){
-									data.records = _.map(data.records, function(o) {if (_.indexOf(token.exchanges,o.exchange)>=0) return o;});
-									data.records = _.without(data.records, undefined);
-								}
-								if(data.records.length>1){
-									data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
-									var buy_from=data.records[0];
-									data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
-									var sell_at=data.records[0];
-									
-									if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
-										var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
-										var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
-										delete buy_from.record_id;
-										delete sell_at.record_id;
-										return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id,total_profit:total_profit});
+								var base_quote_currencies=_.split(data.product,'_',2);
+								if(_.isEmpty(token.currencies) || (_.includes(token.currencies,base_quote_currencies[0]) || _.includes(token.currencies,base_quote_currencies[1])))
+								{
+									if(!_.isEmpty(token.exchanges)){
+										data.records = _.map(data.records, function(o) {if (_.indexOf(token.exchanges,o.exchange)>=0) return o;});
+										data.records = _.without(data.records, undefined);
+									}
+								
+									if(!_.isEmpty(token.min_volume) && parseInt(token.min_volume)>0){ 
+										data.records = _.map(data.records, function(o) {if (parseInt(o.volume)>=parseInt(token.min_volume)) return o;});
+										data.records = _.without(data.records, undefined);
+									}
+								
+									if(data.records.length>1){
+										data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
+										var buy_from=data.records[0];
+										data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
+										var sell_at=data.records[0];
+										
+										if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
+											var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
+											var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
+											delete buy_from.record_id;
+											delete sell_at.record_id;
+											return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id,total_profit:total_profit});
+										}
 									}
 								}
 							});
-							
-							var filter_array=[];
-							_.forEach(return_array,function(data){
-								if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
-									if(_.isEmpty(token.currencies)){
-										filter_array.push(data);
-									}
-									else {
-										_.forEach(token.currencies,function(currency){
-											if(data.product.indexOf(_.toLower(currency+'_'))>=0 || data.product.indexOf(_.toLower('_'+currency))>=0){
-												filter_array.push(data);
-											}
-										});
-									}
-								}
-							});
-							if(!_.isEmpty(filter_array)){
-								filter_array=_.uniqBy(filter_array,'product');
-								filter_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
-								filter_array=_.slice(filter_array,0,25);
+						
+							if(!_.isEmpty(return_array)){
+								return_array=_.uniqBy(return_array,'product');
+								return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
+								return_array=_.slice(return_array,0,25);
 								
 								//CALL JOOMLA API
 								var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
 								_.forEach(url_array,function(url){
-									var postData = {data: filter_array,user_id:token.user_id};
+									var postData = {data: return_array,user_id:token.user_id};
 									var url =url;
 									var options = {method: 'post',body: postData,json: true,url: url};
 									request(options, function (err, res, body) {
@@ -395,7 +390,7 @@ module.exports = {
 									});
 								});
 								
-								PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
+								PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:return_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
 							}
 						});	
 					});
@@ -466,93 +461,6 @@ module.exports = {
 					});
 					
 				}
-				
-				/*_.forEach(response,function(exchange_data){
-					_.forEach(exchange_data,function(data){
-						if(data.record.volume>0){
-							if(_.isEmpty(_.filter(temp_data_array,{product:data.product}))){
-								temp_data_array.push({product:data.product,records:[data.record]});
-							}
-							else{
-								_.forEach(temp_data_array,function(return_data){
-									if(return_data.product==data.product){
-										return_data.records.push(data.record);
-									}
-								});
-							}
-						}
-					});
-				});
-				ExchangeDataService.fxPairList().then(response=>{ 
-					_.forEach(temp_data_array,function(data){
-						if(data.records.length>1){
-							data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
-							var buy_from=data.records[0];
-							data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
-							var sell_at=data.records[0];
-							
-							if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
-								if(_.indexOf(response.data,data.product)==-1){
-									var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
-									var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
-									delete buy_from.record_id;
-									delete sell_at.record_id;
-									return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id,total_profit:total_profit});
-								}
-							}
-						}
-					});
-					
-					if(!_.isEmpty(return_array)){
-						PredatorUserTokens.find().exec(function(err,tokens){
-							if(_.isEmpty(err)){
-								_.forEach(tokens,function(token){
-									var filter_array=[];
-									_.forEach(return_array,function(data){
-										if((_.isEmpty(token.volume) || parseInt(token.volume)==0) || (data.buy_from.volume>=token.volume && data.sell_at.volume>=token.volume)){
-											if(_.isEmpty(token.currencies)){
-												filter_array.push(data);
-											}
-											else {
-												_.forEach(token.currencies,function(currency){
-													if(data.product.indexOf(_.toLower(currency+'_'))>=0 || data.product.indexOf(_.toLower('_'+currency))>=0){
-														filter_array.push(data);
-													}
-												});
-											}
-										}
-									});
-									if(!_.isEmpty(filter_array)){
-										filter_array=_.uniqBy(filter_array,'product');
-										filter_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
-										filter_array=_.slice(filter_array,0,25);
-										
-										//CALL JOOMLA API
-										var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
-										_.forEach(url_array,function(url){
-											var postData = {data: filter_array,user_id:token.user_id};
-											var url =url;
-											var options = {method: 'post',body: postData,json: true,url: url};
-											request(options, function (err, res, body) {
-											  if (err) {//console.log('error posting json: '+ err);
-											  }
-											  //var headers = res.headers;
-											  //var statusCode = res.statusCode;
-											  //console.log('headers: '+ headers);
-											  //console.log('statusCode: '+ statusCode);
-											  //console.log('body: '+ body);
-											});
-										});
-										
-										PredatorTradeService.socketBroadCast(token.token,token.date_updated, 'predator_alert',{data:filter_array,exchange_list:exchange_list},{data:[],exchange_list:[]});
-									}
-								});
-							}
-						});
-						//sails.sockets.blast('predator_alert', {data:return_array,exchange_list:exchange_list});
-						
-					}
-				}).catch( err => {});*/
 			}).
 			catch(err => {});
 		});			
