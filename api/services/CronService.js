@@ -6,7 +6,7 @@ module.exports = {
 		var math = require('mathjs');
 		var curDateTime=moment().format('YYYY-MM-DD HH:mm:ss');
 		
-		var exchanges=['gdax','bittrex','bitfinex','hitbtc','gate','kuna','okex','binance','huobi','gemini','kraken','bitflyer','bithumb','bitstamp','bitz','lbank','coinone','exmo','liqui','korbit','bitmex','livecoin','cex','kucoin'];
+		var exchanges=['gdax','bittrex','bitfinex','hitbtc','gate','kuna','okex','binance','huobi','gemini','kraken','bitflyer','bithumb','bitstamp','bitz','lbank','coinone','exmo','liqui','korbit','bitmex','livecoin','cex','kucoin','cryptopia'];
 		return Promise.all(exchanges.map(exchange => {
 			ExchangeList.findOne({name:exchange},function(err,data){
 				if(err){ 
@@ -1617,6 +1617,70 @@ module.exports = {
 													filter=_.head(filter);
 													if(filter.lastDealPrice==ticker.lastDealPrice){
 														tickers.data=_.reject(tickers.data,{symbol:ticker.symbol});
+													}
+												}
+											});
+										}
+										
+										ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+											if(err){ 
+												ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+											}
+											return exchange;
+										});
+									});*/
+									
+									ExchangeTickersAlerts.create({exchange_id:exchange_id,tickers:tickers,date_created:curDateTime},function(err,data){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_insert',err,'alert_insert',curDateTime);
+										}
+										return exchange;
+									});
+										
+								}
+								else {
+									return 'failed';
+								}
+							}).
+							catch(err=> { 
+								ApiService.exchangeErrors(exchange,'api',err,'alert_api_select',curDateTime);
+								return 'failed';
+							});
+						break;
+						case 'cryptopia':
+							ApiService.cryptopiaTicker().then(tickers=>{
+								tickers=JSON.parse(tickers);
+								if(tickers.Success){
+									_.forEach(tickers.Data,function(ticker){
+										ticker.AskPrice=math.format(ticker.AskPrice,{lowerExp: -100, upperExp: 100});
+										ticker.BidPrice=math.format(ticker.BidPrice,{lowerExp: -100, upperExp: 100});
+										ticker.Low=math.format(ticker.Low,{lowerExp: -100, upperExp: 100});
+										ticker.High=math.format(ticker.High,{lowerExp: -100, upperExp: 100});
+										ticker.Volume=math.format(ticker.Volume,{lowerExp: -100, upperExp: 100});
+										ticker.LastPrice=math.format(ticker.LastPrice,{lowerExp: -100, upperExp: 100});
+										ticker.Open=math.format(ticker.Open,{lowerExp: -100, upperExp: 100});
+										ticker.Close=math.format(ticker.Close,{lowerExp: -100, upperExp: 100});
+										ticker.base_currency=_.toLower(_.join(_.split(ticker.Label,'/',1)));
+										ticker.quote_currency=_.toLower(_.replace(ticker.Label,_.toUpper(ticker.base_currency)+'/',''));
+									});
+										
+									//PROCESS TO MATCH WITH LAST PRICE
+									/*var last_tickers=ExchangeTickersAlerts.findOne();
+									last_tickers.where({exchange_id:exchange_id});
+									last_tickers.sort('id DESC');
+									last_tickers.exec(function(err,last_tickers){
+										if(err){ 
+											ApiService.exchangeErrors(exchange,'query_select',err,'alert_select',curDateTime);
+										}
+										
+										if(!_.isEmpty(last_tickers)){
+											last_tickers=last_tickers.tickers.Data;
+											_.forEach(last_tickers,function(ticker){
+												var filter=_.filter(tickers.Data,{Label:ticker.Label});
+												if(!_.isEmpty(filter)){
+													filter=_.head(filter);
+													if(filter.LastPrice==ticker.LastPrice){
+														tickers.Data=_.reject(tickers.Data,{symbol:ticker.Label});
 													}
 												}
 											});

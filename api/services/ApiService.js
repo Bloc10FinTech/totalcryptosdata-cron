@@ -377,6 +377,22 @@ module.exports = {
 		});
 	},
 	
+	cryptopiaTicker:function(){
+		var request = require('request');
+		return new Promise(function(resolve, reject){
+			var options = {
+			  url: 'https://www.cryptopia.co.nz/api/GetMarkets',
+			  headers: {
+				'User-Agent': 'request'
+			  }
+			};
+			request(options, function(err, res, body) {
+				if (err) { return reject(err); }
+				return resolve(body);
+			});
+		});
+	},
+	
 	exchangeErrors:function(name,error_type,error,custom_message,date_time){ 
 		console.log('Exchange:'+name+'.Error:'+error);
 		/*ExchangeErrors.create({name: name, error_type: error_type, error: error, custom_message: custom_message,date_created:date_time},function(err,data){

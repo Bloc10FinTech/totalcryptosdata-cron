@@ -300,6 +300,16 @@ module.exports = {
 									}); 
 									return resolve(temp_array);
 								break;
+								case 'cryptopia':
+									var temp_array=[];
+									tickers=tickers.Data; 
+									_.forEach(tickers,function(ticker){
+										temp_array.push({product:ticker.base_currency+'_'+ticker.quote_currency,record:{buy:ticker.BidPrice,sell:ticker.AskPrice,volume:ticker.Volume,ask:ticker.AskPrice,bid:ticker.BidPrice,last:ticker.LastPrice,exchange:exchange.name,date_created:date_created,record_id:record_id}});
+										
+										total_crypto_prices.push({product:base_currency+quote_currency,base_currency:base_currency,price:ticker.lastDealPrice,volume:ticker.vol,high:ticker.high,low:ticker.low});
+									}); 
+									return resolve(temp_array);
+								break;
 								default:
 									return resolve([]);
 								break;
