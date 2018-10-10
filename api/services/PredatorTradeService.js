@@ -16,7 +16,7 @@ module.exports = {
 		});
 	},
 	
-	predators_data_alerts:function(exchanges_updated,curDateTime){   
+	predators_data_alerts:function(exchanges_updated,curDateTime){  
 		var _ = require('lodash'); 
 		var moment = require('moment');
 		var request = require('request');
@@ -306,7 +306,7 @@ module.exports = {
 									_.forEach(tickers,function(ticker){
 										temp_array.push({product:ticker.base_currency+'_'+ticker.quote_currency,record:{buy:ticker.BidPrice,sell:ticker.AskPrice,volume:ticker.Volume,ask:ticker.AskPrice,bid:ticker.BidPrice,last:ticker.LastPrice,exchange:exchange.name,date_created:date_created,record_id:record_id}});
 										
-										total_crypto_prices.push({product:base_currency+quote_currency,base_currency:base_currency,price:ticker.lastDealPrice,volume:ticker.vol,high:ticker.high,low:ticker.low});
+										total_crypto_prices.push({product:ticker.base_currency+ticker.quote_currency,base_currency:ticker.base_currency,price:ticker.LastPrice,volume:ticker.Volume,high:ticker.High,Low:ticker.low});
 									}); 
 									return resolve(temp_array);
 								break;
@@ -377,7 +377,7 @@ module.exports = {
 									}
 								}
 							});
-						
+							
 							if(!_.isEmpty(return_array)){
 								return_array=_.uniqBy(return_array,'product');
 								return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
