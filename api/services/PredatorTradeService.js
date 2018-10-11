@@ -370,8 +370,8 @@ module.exports = {
 										if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
 											var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
 											var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
-											delete buy_from.record_id;
-											delete sell_at.record_id;
+											//delete buy_from.record_id;
+											//delete sell_at.record_id;
 											return_array.push({product:data.product,buy_from:buy_from,sell_at:sell_at,id:id,total_profit:total_profit});
 										}
 									}
