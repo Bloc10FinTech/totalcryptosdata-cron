@@ -362,11 +362,20 @@ module.exports = {
 									}
 								
 									if(data.records.length>1){
-										data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return 1;}else {return -1;}});
-										var buy_from=data.records[0];
-										data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return -1;}else {return 1;}});
+										data.records.sort(function(a,b){ if(parseFloat(a.buy)>parseFloat(b.buy)){return -1;}else {return 1;}});
 										var sell_at=data.records[0];
-										
+										//THIS IS DONE ONLY TO REDUCE WORK OF JOOMLA END
+										var sell_price=data.records[0].buy;
+										var buy_price=data.records[0].sell;
+										sell_at.sell=sell_price;
+										sell_at.buy=buy_price;
+										data.records.sort(function(a,b){ if(parseFloat(a.sell)>parseFloat(b.sell)){return 1;}else {return -1;}});
+										var buy_from=data.records[0];
+										//THIS IS DONE ONLY TO REDUCE WORK OF JOOMLA END
+										var sell_price=data.records[0].buy;
+										var buy_price=data.records[0].sell;
+										buy_from.sell=sell_price;
+										buy_from.buy=buy_price;
 										if(buy_from.exchange!=sell_at.exchange && buy_from.buy>0 && sell_at.sell>0 && (_.indexOf(exchanges_updated,buy_from.exchange)>=0 || _.indexOf(exchanges_updated,sell_at.exchange)>=0) &&(((sell_at.sell-buy_from.buy)*100/buy_from.buy)<500)){
 											var id=buy_from.record_id+'_'+sell_at.record_id+'_'+data.product;
 											var total_profit=(sell_at.sell-buy_from.buy)*sell_at.volume;
