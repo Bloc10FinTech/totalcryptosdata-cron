@@ -21,11 +21,10 @@ module.exports = {
 		var moment = require('moment');
 		var request = require('request');
 		var math = require('mathjs');
-	
 		var delete_before_alerts=moment().subtract(6, 'hours').toDate();
-		//var roomName=request.param('roomName');
-		//var currencies=['btc','usd','eth','bch','gbp','ltc','eur','etc'];
-		//var currencies_temp=currencies;
+		
+		//THIS IS STATIC RANK. WE NEED A DYNAMIC RANK FOR ALL CRYPTO CURRENCIES
+		var top_ranked_crypto_currencies=['nano','neo','eth','pivx','doge','xmr','ltc','dash','btc','bch'];
 		
 		ExchangeList.find({select:['id','name'],is_exchange:'yes'},function(err, exchange_list){
 			if(_.isEmpty(exchange_list)){exchange_list=[];}
@@ -389,9 +388,17 @@ module.exports = {
 							
 							if(!_.isEmpty(return_array)){
 								return_array=_.uniqBy(return_array,'product');
-								return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
+								if(token.fast_coin==1){
+									return_array.sort(function(a,b){ 
+										var temp_base_quote_currencies=_.split(a.product,'_',2); 
+										if(_.includes(top_ranked_crypto_currencies,temp_base_quote_currencies[0])){return 1;}else {return -1;}
+									});
+								}
+								else{
+									return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
+								}
 								return_array=_.slice(return_array,0,25);
-								
+								console.log(return_array);
 								//CALL JOOMLA API
 								var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
 								_.forEach(url_array,function(url){
