@@ -389,16 +389,43 @@ module.exports = {
 							if(!_.isEmpty(return_array)){
 								return_array=_.uniqBy(return_array,'product');
 								if(token.fast_coin==1){
-									return_array.sort(function(a,b){ 
-										var temp_base_quote_currencies=_.split(a.product,'_',2); 
-										if(_.includes(top_ranked_crypto_currencies,temp_base_quote_currencies[0])){return 1;}else {return -1;}
+									var matched_array=[];
+									var unmatched_array=[];
+									
+									_.forEach(return_array,function(return_object){
+										var return_object_product=_.split(return_object.product,'_',2);
+										if(_.includes(top_ranked_crypto_currencies,return_object_product[0])){
+											matched_array.push(return_object);
+										}
+										else{
+											unmatched_array.push(return_object);
+										}
 									});
+									
+									matched_array.sort(function(a,b){ 
+										var temp_base_quote_currencies1=_.split(a.product,'_',2); 
+										var temp_base_quote_currencies2=_.split(b.product,'_',2);
+										var index_a=_.indexOf(top_ranked_crypto_currencies,temp_base_quote_currencies1[0]);
+										var index_b=_.indexOf(top_ranked_crypto_currencies,temp_base_quote_currencies2[0]);
+	
+										if(index_a>=0 && index_b>=0){
+											if(index_a>index_b){return -1;}else{return 1;}
+										}
+										else if(index_a>=0){
+										
+										return 1;
+										}
+										else{
+											return -1;
+										}
+									});
+									return_array=_.union(matched_array,unmatched_array);
 								}
 								else{
 									return_array.sort(function(a,b){ if(parseFloat(a.total_profit)>parseFloat(b.total_profit)){return 1;}else {return -1;}});
 								}
 								return_array=_.slice(return_array,0,25);
-								console.log(return_array);
+								
 								//CALL JOOMLA API
 								var url_array=['https://portal.totalcryptos.com/predatord/predator.php','http://devportal.totalcryptos.com/predatord/predator.php'];
 								_.forEach(url_array,function(url){
