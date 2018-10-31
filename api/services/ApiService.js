@@ -3,7 +3,8 @@ module.exports = {
 		var request = require('request');
 		return new Promise(function(resolve, reject) {
 			var options = {
-			  url: 'https://api.gdax.com/products/'+id+'/ticker',
+			  url: 'https://api.pro.coinbase.com/products/'+id+'/ticker',
+			  //url: 'https://api.gdax.com/products/'+id+'/ticker',
 			  headers: {
 				'User-Agent': 'request'
 			  }
